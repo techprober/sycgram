@@ -1,17 +1,22 @@
-FROM python:3.9-alpine
-LABEL maintainer=iwumingz
+ARG FUNCTION_DIR=/app
 
-WORKDIR /sycgram
-COPY . /sycgram
+# =============================== #
+FROM python:3.9-bullseye
+LABEL maintainer=techprober@yqlbu
 
-# The libc6-compat dependency is required to use the host's docker commands
-RUN apk add --no-cache libjpeg libwebp libpng py3-lxml bc neofetch libc6-compat \
-    && apk add --no-cache --virtual build-deps gcc g++ zlib-dev jpeg-dev libxml2-dev libxslt-dev libwebp-dev libpng-dev \
-    && pip install -r requirements.txt --no-cache-dir \
-    && apk del build-deps \
-    && mkdir -p /sycgram/data \
-    && rm -rf .git .github .gitignore Dockerfile install.sh LICENSE README.md requirements.txt
+ARG FUNCTION_DIR
 
-VOLUME /sycgram/data
+WORKDIR ${FUNCTION_DIR}
 
-ENTRYPOINT ["/usr/local/bin/python3", "-u", "main.py"]
+RUN mkdir -p {FUNCTION_DIR}/data
+
+COPY requirements.txt .
+RUN pip install -r requirements.txt --no-cache-dir
+
+# Clean cache
+RUN pip3 cache purge
+
+# Copy source code
+COPY . .
+
+CMD ["python3", "main.py"]

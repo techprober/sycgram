@@ -1,0 +1,16 @@
+---
+version: "3.8"
+
+services:
+  sycgram:
+    container_name: sycgram
+    build:
+      context: ./
+      dockerfile: ./Dockerfile
+      args:
+        FUNCTION_DIR: /app
+    environment:
+      - TZ=Asia/Shanghai
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped
